@@ -1,0 +1,9 @@
+- hosts: all
+  vars_prompt:
+       - name: username
+         prompt: "enter username: "
+         private: no
+  tasks: 
+        - user: 
+                name= {{username}}
+                remove= yes                

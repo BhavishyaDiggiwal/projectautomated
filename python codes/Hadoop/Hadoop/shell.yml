@@ -1,0 +1,4 @@
+- hosts: 192.168.43.246
+  tasks:
+     - shell: "hadoop-daemon.sh start namenode"
+

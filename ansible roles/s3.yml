@@ -1,0 +1,9 @@
+- hosts: 192.168.43.100
+  vars_files:
+     - aws_keys.yml
+  tasks:
+        - s3_bucket:
+                aws_access_key: "{{ aws_access_key }}"
+                aws_secret_key: "{{ aws_secret_key }}"
+                name: ajsbojabsocbasjovbpbxcl
+                region: ap-south-1

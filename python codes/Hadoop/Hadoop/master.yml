@@ -1,0 +1,100 @@
+- hosts: 192.168.43.31
+  tasks: 
+      - name: "Making Directory"
+        file:
+                path: /storage
+                state: directory
+        register: dir
+        
+      - name: Copying Hosts File
+        copy: 
+                src: "/root/Desktop/WORKSPACE/Ansible/Hadoop/Master/hosts"
+                dest: "/etc/hosts"
+
+      - name: Copying JDK
+        copy: 
+                src: "/root/jdk-8u171-linux-x64.rpm"
+                dest: "/root/jdk-8u171-linux-x64.rpm"
+
+      - name: Copying Hadoop
+        copy:   
+                src: "/root/hadoop-1.2.1-1.x86_64.rpm"
+                dest: "/root/hadoop-1.2.1-1.x86_64.rpm"
+
+      - name: Check if JDK is Installed
+        shell: rpm -q jdk1.8-1.8.0_171-fcs.x86_64
+
+        register: jdk_check
+        failed_when:
+                - "'is not installed' in jdk_check.stdout_lines"
+
+
+      - name: Check if Hadoop is Installed
+        command: rpm -q hadoop
+        register: hadoop_check
+        failed_when:
+                - "'is not installed' in hadoop_check.stdout_lines"
+
+
+      - name: Installing JDK
+        command: "rpm -i /root/jdk-8u171-linux-x64.rpm  "
+        when: jdk_check.stdout.find('is not installed') != -1
+
+      - name: Installing Hadoop
+        command: "rpm -i  /root/hadoop-1.2.1-1.x86_64.rpm  --force"
+        when: hadoop_check.stdout.find('is not installed') != -1
+
+      - file: 
+         path: /etc/rc.d/rc.local 
+         mode: 777 
+
+      - name: Exporting JAVA_HOME
+        lineinfile:
+                path: /etc/rc.d/rc.local
+                line: 'export JAVA_HOME=/usr/java/jdk1.8.0_171-amd64/'
+                state: present
+
+      - name: Exporting PATH
+        lineinfile:
+                path: /etc/rc.d//rc.local
+                line: 'export PATH=/usr/java/jdk1.8.0_171-amd64/bin:$PATH'
+                state: present
+   
+      - name: Copying hdfs-site        
+        copy: 
+                src: "/root/Desktop/WORKSPACE/Ansible/Hadoop/Master/hdfs-site.xml"
+                dest: "/etc/hadoop/hdfs-site.xml"
+
+      - name: Copying core-site
+        copy:                
+                src: "/root/Desktop/WORKSPACE/Ansible/Hadoop/Master/core-site.xml"
+                dest: "/etc/hadoop/core-site.xml"
+
+      - name: Disabling Firewall
+        firewalld:
+                state: disabled
+                permanent: True
+
+      - name: Formatting
+        command: "echo \"Y\" | hadoop namenode -format"
+        when:
+                - dir.changed == True   
+                             
+      - name: Stopping Namenode
+        command: "hadoop-daemon.sh stop namenode"
+        register: namenode
+
+      - name: Starting namenode
+        command: "hadoop-daemon.sh start namenode"
+        register: namenode
+        failed_when:
+                - "'running' in namenode.stdout_lines"
+
+      - name: Making Namenode Permanent
+        lineinfile:
+                path: /etc/rc.d/rc.local
+                line: 'hadoop-daemon.sh start namenode'
+                state: present
+
+
+

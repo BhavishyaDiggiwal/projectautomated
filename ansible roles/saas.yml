@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: docker installation
+      package:
+        name: docker-ce
+        state: present
+    - name: installation of pip
+      package:
+        name: python-pip
+        state: present
+    - pip:
+        name: docker-py
+    - name: docker service is starting
+      service:
+        name: docker
+        state: started
+    - name: pulling docker image
+      command: docker pull ubuntu14.04
+    - name: A new container is launching
+      docker_container:
+        name: name1
+        image: ubuntu14.04
+        state: started
+        interactive: yes

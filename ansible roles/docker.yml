@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+#        - package:
+#                name: docker
+#                state: present
+        
+        - docker_container:
+                name: lolll
+                image: centos
+                tty: True
+                interactive: True
+                state: started

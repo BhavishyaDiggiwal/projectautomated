@@ -1,0 +1,25 @@
+- hosts: localhost
+  vars_files:
+      - secret.yml
+#  vars_prompt:
+#      - name: username
+#        prompt: "Enter Username of Recipient"
+#        private: no
+
+#      - name: subject
+#        prompt: "Enter Email Subject"
+#        private: no
+
+#      - name: body
+#        prompt: "Enter Email Body"
+#        private: no
+  tasks:
+      - name: GMAIL
+        mail:
+                host: smtp.gmail.com
+                port: 587
+                username: kenfkadams@gmail.com
+                password: "{{ p }}"
+                to: adiiiop59@gmail.com
+                subject: Sup Guys
+                body: We rock

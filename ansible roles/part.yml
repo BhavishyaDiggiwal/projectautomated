@@ -1,0 +1,33 @@
+- hosts: localhost
+  vars_prompt: 
+        - name: pv
+          prompt: "Enter Partition Size (same as pv size)"
+          private: no
+
+        - name: pe
+          prompt: "Enter Extent Size for VG(in MiB, in powers of 2"
+          private: no
+
+        - name: lv
+          prompt: "Enter lv size  (must be less than pv size)"
+          private: no
+
+  tasks:
+      - name: Creating partitions
+        parted:
+          device: /dev/sdb
+          part_end:  "{{ pv  }}"
+          state: present
+          number: 1
+
+      - name: Creating VG
+        lvg:
+          pesize: "{{ pe }}"
+          pvs: /dev/sdb1
+          vg: newvg
+
+      - name: Creating LV
+        lvol:
+          lv: newlv
+          size: "{{ lv  }}"
+          vg: newvg
